@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دابەزاندنا ڤیدیۆیان 🚀</title>
+    <style>
+        /* هەمان دیزاینە جوانەکەی پێشوو */
+        body {
+            margin: 0;
+            padding: 20px 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            gap: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        h1 { margin-bottom: 10px; font-size: 24px; }
+        p { font-size: 14px; margin-bottom: 30px; color: #ccc; }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input::placeholder { color: #ddd; }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(to right, #3a7bd5, #3a6073);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        button:hover { box-shadow: 0 0 15px rgba(58, 123, 213, 0.5); transform: translateY(-2px); }
+        button:disabled { background: #555; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        .history-container {
+            display: none;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 500px;
+            text-align: right;
+        }
+        .history-container h2 {
+            font-size: 18px;
+            margin-top: 0;
+            color: #00d2ff;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+        .history-list { max-height: 200px; overflow-y: auto; margin-bottom: 15px; padding-left: 5px; }
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 14px;
+        }
+        .history-item .date { font-size: 12px; color: #aaa; }
+        .clear-btn { background: rgba(255, 50, 50, 0.7); font-size: 14px; padding: 10px; margin-bottom: 0; }
+        .clear-btn:hover { background: rgba(255, 50, 50, 0.9); box-shadow: 0 0 10px rgba(255, 50, 50, 0.5); }
+        
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #00d2ff; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>دابەزاندنا ڤیدیۆیان 🚀</h1>
+    <p>لینکێ ڤیدیۆیێ ژ فەیسبووک، ئینستاگرام، تیکتۆک، یان یوتیۆبێ ل ڤێرە دابنێ</p>
+    
+    <input type="text" id="videoUrl" placeholder="لینکێ ڤیدیۆیێ ل ڤێرە بنڤێسە...">
+    <button id="downloadBtn" onclick="fetchAndDownload()">دابەزینە (Download) ⬇️</button>
+</div>
+
+<div class="history-container" id="historyContainer">
+    <h2>لەیستێ داونلۆدان (Downloads)</h2>
+    <div class="history-list" id="historyList"></div>
+    <button class="clear-btn" onclick="clearHistory()">ژێبرنا لەیستێ 🗑️</button>
+</div>
+
+<script>
+    window.onload = loadHistory;
+
+    async function fetchAndDownload() {
+        const urlInput = document.getElementById('videoUrl').value;
+        const downloadBtn = document.getElementById('downloadBtn');
+        
+        if(urlInput === "") { alert("هیڤییە لینکێ ڤیدیۆیێ دابنێ!"); return; }
+        
+        downloadBtn.innerText = "⏳ ڤیدیۆ خەریکە ئامادە دەبێت...";
+        downloadBtn.disabled = true;
+
+        // ئەمە APIیەکی نموونەییە بۆ دابەزاندنی ڤیدیۆ لە تۆڕە کۆمەڵایەتییەکان
+        // لەم بەشەدا پشت بە APIیەکی گشتی دەبەستین
+        const apiUrl = `https://api.cobalt.tools/api/json`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    url: urlInput,
+                    vQuality: "720",
+                    filenamePattern: "classic"
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.status === "error") {
+                alert("❌ کێشەیەک هەیە: لینکەکە هەڵەیە یان پشتگیری ناکرێت.");
+            } else {
+                // وەرگرتنی لینکی ڕاستەوخۆی ڤیدیۆکە لە APIیەکەوە
+                const directVideoUrl = data.url;
+                const videoTitle = "ڤیدیۆی دابەزێنراو";
+                
+                // کردنەوەی لینکەکە بۆ داگرتن
+                window.open(directVideoUrl, '_blank');
+                
+                addToHistory(videoTitle, "باشترین کوالێتی");
+                alert("✅ ڤیدیۆکە ئامادەیە بۆ دابەزاندن!");
+            }
+        } catch (error) {
+            alert("❌ ناتوانرێت پەیوەندی بە APIیەوە بکرێت! " + error);
+        } finally {
+            downloadBtn.innerText = "دابەزینە (Download) ⬇️";
+            downloadBtn.disabled = false;
+        }
+    }
+
+    function addToHistory(title, quality) {
+        let history = JSON.parse(localStorage.getItem('downloadHistory')) || [];
+        const now = new Date();
+        const dateString = now.toLocaleDateString('ku-IQ') + ' - ' + now.toLocaleTimeString('ku-IQ');
+        history.unshift({ title: title, quality: quality, date: dateString });
+        localStorage.setItem('downloadHistory', JSON.stringify(history));
+        loadHistory();
+    }
+
+    function loadHistory() {
+        const historyContainer = document.getElementById('historyContainer');
+        const historyList = document.getElementById('historyList');
+        let history = JSON.parse(localStorage.getItem('downloadHistory')) || [];
+        
+        if (history.length === 0) {
+            historyContainer.style.display = "none";
+            return;
+        }
+        
+        historyContainer.style.display = "block";
+        historyList.innerHTML = "";
+        
+        history.forEach(item => {
+            let div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <strong>${item.title}</strong>
+                <span class="date">📺 کوالێتی: ${item.quality} | 🕒 ${item.date}</span>
+            `;
+            historyList.appendChild(div);
+        });
+    }
+
+    function clearHistory() {
+        if(confirm("ئایا دڵنیای دەتەوێت مێژووی داونلۆدەکانت بسڕیتەوە؟")) {
+            localStorage.removeItem('downloadHistory');
+            loadHistory();
+        }
+    }
+</script>
+
+</body>
+</html>
