@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>دابەزاندنا ڤیدیۆیان 🚀</title>
     <style>
-        /* هەمان دیزاینە جوانەکەی پێشوو */
         body {
             margin: 0;
             padding: 20px 0;
@@ -129,12 +128,12 @@
         downloadBtn.innerText = "⏳ ڤیدیۆ خەریکە ئامادە دەبێت...";
         downloadBtn.disabled = true;
 
-        // ئەمە APIیەکی نموونەییە بۆ دابەزاندنی ڤیدیۆ لە تۆڕە کۆمەڵایەتییەکان
-        // لەم بەشەدا پشت بە APIیەکی گشتی دەبەستین
-        const apiUrl = `https://api.cobalt.tools/api/json`;
+        // بەکارهێنانی پڕۆکسی بۆ تێپەڕاندنی بەربەستی CORS
+        const targetApi = "https://api.cobalt.tools/api/json";
+        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(targetApi);
 
         try {
-            const response = await fetch(apiUrl, {
+            const response = await fetch(proxyUrl, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -152,7 +151,6 @@
             if (data.status === "error") {
                 alert("❌ کێشەیەک هەیە: لینکەکە هەڵەیە یان پشتگیری ناکرێت.");
             } else {
-                // وەرگرتنی لینکی ڕاستەوخۆی ڤیدیۆکە لە APIیەکەوە
                 const directVideoUrl = data.url;
                 const videoTitle = "ڤیدیۆی دابەزێنراو";
                 
@@ -163,7 +161,7 @@
                 alert("✅ ڤیدیۆکە ئامادەیە بۆ دابەزاندن!");
             }
         } catch (error) {
-            alert("❌ ناتوانرێت پەیوەندی بە APIیەوە بکرێت! " + error);
+            alert("❌ کێشە لە پەیوەندی هەیە! دڵنیابە لە هێڵی ئینتەرنێتەکەت یان لینکەکە.");
         } finally {
             downloadBtn.innerText = "دابەزینە (Download) ⬇️";
             downloadBtn.disabled = false;
